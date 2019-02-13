@@ -26,7 +26,7 @@ void chassisStopDrive(){
 }
 
 void turnLeft(int speed) {
-  // pivot turn the robot 'left' - use delay after the call to
+  // pivot turn the robot 'left' - use delay [delay(300);]  after the call to
   // turn for a given time = angle
   motorSet(LEFT_M_FRONT, -speed);
   motorSet(RIGHT_M_FRONT, -speed);
@@ -54,7 +54,7 @@ void drivePID(int masterPower) {
   int slavePower = masterPower;
 
   int error = 0;
-  int kp = 5;
+  int kp = 1;  //defaut = 5
 
    //Reset the encoders.
    encoderReset(encoderLM);
@@ -116,7 +116,8 @@ void driveForDistancePID(int distance, int speed) {
   int totalTicks = 0;               // track total trveled
   int slavePower = speed - 5;
   int error = 0;
-  int kp = 5;                       // can be tuned to help zig-zag and accuracy, be careful!
+  int kp = 1;                       // can be tuned to help zig-zag and accuracy, be careful!
+                                    //kp default = 5 for PID
 
   encoderReset(encoderLM);
   encoderReset(encoderRM);
@@ -162,6 +163,7 @@ void driveForDistancePID(int distance, int speed) {
   motorSet(RIGHT_M_FRONT, 0);
 
 }
+
 
 void pivotTurn(int direction, int speed, float angle) {
   // direction -- 1 = left turn, 0 = right pivotTurn
