@@ -1,6 +1,7 @@
 #include "main.h"    // includes API.h and other headers
 #include "chassis.h" // ensures that the corresponding header file (chassis.h) is included
 #include "portdef.h" // All port defintions on the cortex need to be included
+#include "math.h"    //
 
 // Place all chassis specific functions here, forexample
 // void driveForDistancePD(int speed, int distance) {}
@@ -102,6 +103,8 @@ void driveForDistancePID(int distance, int speed) {
   float motorDegree = (distance / wheelCircum) * 360;  // cast into full degrees
 
   if(DEBUG_ON) {
+    printf("DIStance: %d ", distance);
+    printf(" Speed: %d ", speed);
     printf("Dist: %1.2f \n", motorDegree);
     wait(200);                        // Let terminal catch up
   }
@@ -119,10 +122,22 @@ void driveForDistancePID(int distance, int speed) {
   int kp = 1;                       // can be tuned to help zig-zag and accuracy, be careful!
                                     //kp default = 5 for PID
 
+ // We need to account for direction - thsi means speed values need to be
+ // flipped if we drive backawards i.e. when we get a negative Distance
+ if(distance < 0 ) {
+ // we are driving backwards - so we need to flip speed
+ masterPower = masterPower * -1;
+ slavePower = slavePower * -1;
+ }
+ if(DEBUG_ON){
+ printf("Master Power: %d", masterPower);
+ printf(" SlavePower: %d \n", slavePower);
+ }
+
   encoderReset(encoderLM);
   encoderReset(encoderRM);
 
-  while(abs(totalTicks) < motorDegree)
+  while(abs(totalTicks) < fabs(motorDegree))
   {
     //Set the motor powers to their respective variables.
     motorSet(LEFT_M_FRONT, -masterPower);
@@ -147,8 +162,10 @@ void driveForDistancePID(int distance, int speed) {
       printf("\n ");
     }
 
-    //Add this iteration's encoder values to totalTicks.
-    totalTicks+= encoderGet(encoderLM);
+   //Add this iteration's encoder values to totalTicks.
+   // we are lawys doing 'positive travel distance compare'
+   totalTicks+= abs(encoderGet(encoderLM));
+
     if(DEBUG_ON) {
       printf("error: %d", error);
       printf(" slavePower: %d", slavePower);
